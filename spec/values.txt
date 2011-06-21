@@ -1,0 +1,2 @@
+john@example.com,small,big,medium
+jane@example.com,small
