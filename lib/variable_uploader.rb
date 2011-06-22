@@ -6,6 +6,8 @@ require 'logger'
 module GoodData
   module VariableUploader
 
+    ALL = '(all)'
+
     class Variable
       attr_accessor :uri
     end
@@ -31,6 +33,7 @@ module GoodData
         data.each do |line|
           vals.has_key?(line.first) ? vals[line.first].concat(line[1..-1]) : vals[line.first] = line[1..-1]
         end
+        logger.debug("Found #{vals.size} user defined rules in file #{filename}") if logger
         @values = vals
       end
 
@@ -60,14 +63,17 @@ module GoodData
 
         data_to_send = []
         (updated + new_el).each do |user|
+          maql_expression = user[:values] == [ALL] ? "TRUE" : "[#{attribute.uri}] IN (#{user[:values].map {|v| "[#{v}]"}.join(", ")})"
           data_to_send << {
-            :expression => "[#{attribute.uri}] IN (#{user[:values].map {|v| "[#{v}]"}.join(", ")})",
+            :expression => maql_expression,
             :level      => "user",
             :prompt     => variable.uri,
             :related    => user[:user],
             :type       => "filter"
           } unless user[:values].empty?
         end
+        
+        # pp data_to_send
         
         updated.each do |update|
           GoodData.delete(update[:uri])
@@ -83,10 +89,12 @@ module GoodData
         get_values.each do |key, value|
           if users_lookup.has_key?(key)
             expressions_by_user[users_lookup[key]] = value.inject([]) do |all, val|
-              if elements_lookup.has_key?(val)
+              if val == ALL
+                all << val
+              elsif elements_lookup.has_key?(val)
                 all << elements_lookup[val]
               else
-                @logger.warn("Value #{val} for #{key} will not be used.")
+                @logger.warn("Value #{val} for #{key} will not be used. The value could not be found through the label")
                 all
               end
             end
@@ -139,9 +147,12 @@ module GoodData
         search["variables"].each do |var|
           current_expressions_by_user[var["related"]] = {
             :values => var['objects'].find_all {|obj| obj["category"] == "attributeElement"}.collect {|obj| obj["uri"]},
+            :expression => var["expression"],
             :uri => var["uri"]
           }
         end
+        
+        # pp current_expressions_by_user
         
         # Compare and work only with new or changed, deleted
         updated = []
@@ -150,14 +161,26 @@ module GoodData
           a = current_expressions_by_user[profile_uri]
           b = values
           
+          # puts "----"
+          # pp a
+          # puts "----"
+          # pp b
+          # puts "----"
+          
           if a.nil?
-            new_el << {:user => profile_uri, :values => values}
+            new_el << {:user => profile_uri, :values => values} unless values.empty?
           else
             user = {:user => profile_uri, :values => values, :uri => a[:uri]}
-            updated << user unless ((a[:values] | b) - (a[:values] & b)).empty?
+            are_same = false
+            are_same = true if are_same == false && (a[:expression] == "TRUE" && b == [ALL])
+            are_same = true if ((a[:values] | b) - (a[:values] & b)).empty? && a[:expression] != "TRUE"
+            
+            # puts "#{a[:values]} -- #{b}, #{are_same}"
+            # puts "#{a[:expression]} -- #{b}, #{are_same}"
+            updated << user unless are_same
           end
         end
-        [updated, new_el]
+        return updated, new_el
       end
     end
 
