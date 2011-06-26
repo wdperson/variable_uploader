@@ -205,7 +205,7 @@ module GoodData
 
         def run
           # GoodData.logger = Logger.new(STDOUT)
-          GoodData.connect(@login, @password, '', {
+          GoodData.connect(@login, @password, nil, {
             :timeout => 0
           })
           p = GoodData.use(@pid)
