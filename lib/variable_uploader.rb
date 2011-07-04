@@ -33,7 +33,7 @@ module GoodData
         data.each do |line|
           vals.has_key?(line.first) ? vals[line.first].concat(line[1..-1]) : vals[line.first] = line[1..-1]
         end
-        logger.debug("Found #{vals.size} user defined rules in file #{filename}") if logger
+        logger.debug("Found #{vals.size} user defined rules in file #{filename}")
         @values = vals
       end
 
@@ -42,7 +42,7 @@ module GoodData
         # get variable
         variable = GoodData::MdObject[variable_uri]
         
-        logger.debug("Updating variable #{variable.title}") if logger
+        logger.debug("Updating variable #{variable.title}")
         attribute = GoodData::MdObject[variable.content["attribute"]]
         
         # get display form
@@ -58,8 +58,8 @@ module GoodData
         # Create the current values
         updated, new_el = gather_updates(project, variable, expressions_by_user)
         
-        logger.debug("New values #{new_el.size}") if logger
-        logger.debug("Updated values #{updated.size}") if logger
+        logger.debug("New values #{new_el.size}")
+        logger.debug("Updated values #{updated.size}")
 
         data_to_send = []
         (updated + new_el).each do |user|
@@ -210,7 +210,7 @@ module GoodData
           })
           p = GoodData.use(@pid)
           
-          logger = Logger.new(STDOUT)
+          logger = Logger.new('variable_uploader.log', 10, 1024000)
           
           steps.each do |step|
             step.run(logger, p)
