@@ -16,10 +16,11 @@ module GoodData
 
       attr_reader :variable_uri, :filename, :display_form_uri, :logger
 
-      def initialize(filename, variable_uri, label_uri)
+      def initialize(filename, variable_uri, label_uri, options={})
         @filename = filename
         @variable_uri = variable_uri
         @display_form_uri = label_uri
+	@users_data = options[:users_data]
       end
 
       def values
@@ -49,7 +50,9 @@ module GoodData
         default_label = get_default_display_form(attribute)
 
         elements_lookup = create_elements_lookup(default_label)
+	logger.debug("getting users - START")
         users_lookup = create_users_lookup(project)
+	logger.debug("getting users - DONE")
 
         # Create the values to be created
         expressions_by_user = create_expressions_for_update(users_lookup, elements_lookup)
@@ -107,7 +110,8 @@ module GoodData
       
       def create_users_lookup(project)
         users_lookup = {}
-        GoodData.get("#{project.uri}/users")["users"].each do |user|
+        data = @users_data.nil?() ? GoodData.get("#{project.uri}/users") : @users_data
+        data["users"].each do |user|
           user = user["user"]
           users_lookup[user["content"]["email"]] = user["links"]["self"]
         end
@@ -225,7 +229,7 @@ module GoodData
             # raise "Values need to be of type Hash" unless options[:values].kind_of? Hash
             # @steps << Step.new(options[:values], Variable.new)
           # else
-          @steps << Step.new(options[:file], options[:variable], options[:label])
+          @steps << Step.new(options[:file], options[:variable], options[:label], options)
           # end
         end
       end
