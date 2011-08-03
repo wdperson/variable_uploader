@@ -43,8 +43,9 @@ module GoodData
 
         data_to_send = []
         (updated + new_el).each do |user|
+          #pp user
           maql_expression = user[:values] == [ALL] ? "TRUE" : "[#{attribute.uri}] #{user[:type]} (#{user[:values].map {|v| "[#{v}]"}.join(", ")})"
-          pp maql_expression
+          #pp maql_expression
           data_to_send << {
             :expression => maql_expression,
             :level      => "user",
@@ -172,7 +173,7 @@ module GoodData
           # puts "----"
 
           if a.nil?
-            new_el << {:user => profile_uri, :values => b} unless b.empty?
+            new_el << {:user => profile_uri, :values => b, :type => b_type} unless b.empty?
           else
             a_type = a[:type]
             user = {:user => profile_uri, :values => b, :uri => a[:uri], :type => b_type }
