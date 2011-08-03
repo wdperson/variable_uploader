@@ -160,7 +160,6 @@ module GoodData
         new_el = []
         expressions_by_user.each do |profile_uri, values|
           a = current_expressions_by_user[profile_uri]
-          a_type = a[:type]
           b_type = values[:type]
           b = values[:values]
 
@@ -173,6 +172,7 @@ module GoodData
           if a.nil?
             new_el << {:user => profile_uri, :values => b} unless b.empty?
           else
+            a_type = a[:type]
             user = {:user => profile_uri, :values => b, :uri => a[:uri], :type => b_type }
             are_same = false
             are_same = true if are_same == false && (a[:expression] == "TRUE" && b == [ALL])
