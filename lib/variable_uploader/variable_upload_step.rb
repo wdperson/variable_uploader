@@ -10,10 +10,11 @@ module GoodData
 
       attr_reader :variable_uri, :filename, :display_form_uri, :logger
 
-      def initialize(filename, variable_uri, label_uri)
+      def initialize(filename, variable_uri, label_uri, options={})
         @filename = filename
         @variable_uri = variable_uri
         @display_form_uri = label_uri
+        @users_data = options[:users_data]
       end
 
       def run(logger_param, project)
@@ -108,7 +109,8 @@ module GoodData
   
       def create_users_lookup(project)
         users_lookup = {}
-        GoodData.get("#{project.uri}/users")["users"].each do |user|
+        data = @users_data.nil?() ? GoodData.get("#{project.uri}/users") : @users_data
+        data["users"].each do |user|
           user = user["user"]
           users_lookup[user["content"]["email"]] = user["links"]["self"]
         end

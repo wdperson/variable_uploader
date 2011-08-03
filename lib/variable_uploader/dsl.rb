@@ -37,7 +37,7 @@ module GoodData
           raise "Specify file name or values" if (options[:values].nil? && options[:file].nil?)
           raise "Variable needs to be defined" if options[:variable].nil?
 
-          @steps << VariableStep.new(options[:file], options[:variable], options[:label])
+          @steps << VariableStep.new(options[:file], options[:variable], options[:label], options)
         end
 
         def update_users(options={})
