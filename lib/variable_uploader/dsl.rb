@@ -40,6 +40,8 @@ module GoodData
           @steps << VariableStep.new(options[:file], options[:variable], options[:label], options)
         end
 
+        alias :upload, :update_variable
+
         def update_users(options={})
           # raise "Specify file name" if options[:file].nil?
           binding = RForce::Binding.new 'https://www.salesforce.com/services/Soap/u/20.0'
