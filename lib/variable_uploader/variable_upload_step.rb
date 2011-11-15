@@ -61,7 +61,9 @@ module GoodData
           GoodData.delete(update[:uri])
         end
     
-        GoodData.post("/gdc/md/#{project.obj_id}/variables/user", ({:variables => data_to_send}))
+        data_to_send.each_slice(500) do |slice|
+          GoodData.post("/gdc/md/#{project.obj_id}/variables/user", ({:variables => slice}))
+        end
       end
 
       private
