@@ -40,7 +40,7 @@ module GoodData
           @steps << VariableStep.new(options[:file], options[:variable], options[:label], options)
         end
 
-        alias :upload, :update_variable
+        alias :upload :update_variable
 
         def update_users(options={})
           # raise "Specify file name" if options[:file].nil?
