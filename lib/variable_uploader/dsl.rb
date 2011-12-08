@@ -15,13 +15,14 @@ module GoodData
           @password = options[:pass]
           @pid = options[:pid]
           @steps = []
+          @server = options[:server]
           instance_eval(&block)
           run
         end
 
         def run
           # GoodData.logger = Logger.new(STDOUT)
-          GoodData.connect(@login, @password, nil, {
+          GoodData.connect(@login, @password, @server, {
             :timeout => 0
           })
           p = GoodData.use(@pid)
