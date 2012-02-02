@@ -44,7 +44,12 @@ module GoodData
         data_to_send = []
         (updated + new_el).each do |user|
           #pp user
-          maql_expression = user[:values] == [ALL] ? "TRUE" : "[#{attribute.uri}] #{user[:type]} (#{user[:values].map {|v| "[#{v}]"}.join(", ")})"
+          maql_expression = if user[:values].any? {|v| v == ALL}
+            "TRUE"
+          else
+            "[#{attribute.uri}] #{user[:type]} (#{user[:values].map {|v| "[#{v}]"}.join(", ")})"
+          end
+          # maql_expression = user[:values] == [ALL] ? "TRUE" : "[#{attribute.uri}] #{user[:type]} (#{user[:values].map {|v| "[#{v}]"}.join(", ")})"
           #pp maql_expression
           data_to_send << {
             :expression => maql_expression,
@@ -84,9 +89,12 @@ module GoodData
       end
 
       def create_expressions_for_update(users_lookup, elements_lookup)
+        # To distinct multiple users, experment
+        processed_users = {}
         expressions_by_user = {}
         get_values.each do |key, value|
-          if users_lookup.has_key?(key)
+          if users_lookup.has_key?(key) && !processed_users.has_key?(key)
+            processed_users[key] = 1
             expressions_by_user[users_lookup[key]] = {}
             # puts "-------> #{value.first}"
             expressions_by_user[users_lookup[key]][:type] = value.first === NOT ? NOT_IN : IN
@@ -102,11 +110,14 @@ module GoodData
                 @logger.warn("Value #{val} for #{key} will not be used. The value could not be found through the label")
                 all
               end
+              all.uniq
             end
+            
           else
             @logger.warn("Values for #{key} will not be used. User not found in project.")
           end
         end
+        # pp expressions_by_user
         expressions_by_user
       end
   
