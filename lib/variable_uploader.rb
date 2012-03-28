@@ -7,7 +7,6 @@ require 'variable_uploader/step'
 require 'variable_uploader/variable_upload_step'
 require 'variable_uploader/user_create_step'
 require 'variable_uploader/sf_helper'
-require 'rforce'
 
 
 module GoodData

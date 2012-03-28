@@ -43,17 +43,6 @@ module GoodData
 
         alias :upload :update_variable
 
-        def update_users(options={})
-          # raise "Specify file name" if options[:file].nil?
-          binding = RForce::Binding.new 'https://www.salesforce.com/services/Soap/u/20.0'
-          # binding.login 'ps+greenlightsearch@gooddata.com', 'GoodData2011' + 'vs6WF0Mt9DIRm4TQn5In7QLD'
-          binding.login 'ps+scribe@gooddata.com', 'wqOsWVJc2AdYr0FeVqrX1Ru8YqTgHekXOSV'
-          
-          @steps << CreateUsersStep.new(options.merge({
-              :sfdc_connection => binding
-          }))
-        end
-
       end
 
     end
