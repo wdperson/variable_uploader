@@ -79,7 +79,7 @@ module GoodData
       end
 
       def get_values
-        data = FasterCSV.read(filename)
+        data = CSV.read(filename)
         vals = {}
         data.each do |line|
           vals.has_key?(line.first) ? vals[line.first].concat(line[1..-1]) : vals[line.first] = line[1..-1]

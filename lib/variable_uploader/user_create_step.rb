@@ -81,7 +81,7 @@ module GoodData
           YAML.parse(data)
         when ".csv"
           output = []
-          FasterCSV.parse(data, :headers => true) do |row|
+          CSV.parse(data, :headers => true) do |row|
             output << row.to_hash
           end
           output

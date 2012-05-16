@@ -1,4 +1,3 @@
-require 'fastercsv'
 require 'gooddata'
 require 'pp'
 require 'logger'
